@@ -1,42 +1,29 @@
-"""One Word From Your Ex -- make.fun entry.
+#!/usr/bin/env python3
+"""One Word From Your Ex — entrypoint.
 
-The program writes exactly one word to $MAKEFUN_OUTPUT_DIR/entry.txt:
-the word the entrant's ex would use to describe them, and nothing else.
-
-The word is "Rebound". An ex would say it like this: "He was just a
-rebound." It is funny because of the sharp turn -- you were never the
-main event, only the warm-up act after someone else. It stings because
-it is painfully true and the entrant plainly knows it. It lands
-instantly, needs no explanation, and no near synonym ("fling",
-"distraction") keeps the same edge. And it is relatable: almost
-everyone has been somebody's rebound, or had one.
-
-The program is deliberately deterministic: no clock, no randomness,
-no network, no input. It always writes the same single word, so two
-runs produce byte-identical output.
+Writes exactly one word to /output/entry.txt: the word an ex would
+use to describe the entrant. No arguments, no network, no randomness:
+the same word every run, byte for byte.
 """
 
 import os
 import sys
 
-# The one word. A single word, 1-24 characters, as the gate requires.
-WORD = "Rebound"
+WORD = "Unrefundable"
+
+OUTPUT_PATH = "/output/entry.txt"
 
 
 def main() -> int:
-    # Self-check against the competition's gate before writing:
-    # UTF-8 text of 1 to 24 characters, not only white space, exactly
-    # one word. Refuse to write anything that would fail the gate.
-    if not WORD or len(WORD) > 24 or not WORD.strip():
-        raise ValueError("word fails the gate: must be 1-24 characters")
-    if len(WORD.split()) != 1:
-        raise ValueError("word fails the gate: must be exactly one word")
-    output_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "output")
-    os.makedirs(output_dir, exist_ok=True)
-    path = os.path.join(output_dir, "entry.txt")
-    # Exactly one word, no trailing newline, no extra text.
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        f.write(WORD)
+    # Self-check the gate before writing: 1 to 24 characters, not
+    # only white space, exactly one word, no trailing newline.
+    word = WORD.strip()
+    if not word or len(word) > 24 or len(word.split()) != 1:
+        print(f"invalid entry word: {WORD!r}", file=sys.stderr)
+        return 1
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
+        f.write(word)
     return 0
 
 
